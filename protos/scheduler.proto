@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package mprs;
+
+message MprsJobConfigFilters {
+  repeated string white_list = 1;
+  string white_list_regex = 2;
+  repeated string black_list = 3;
+  string black_list_regex = 4;
+  double fraction_of_nodes = 5; // [default = 1.0];
+  repeated string tag_white_list = 6;
+}
+
+message MprsJobConfig {
+  string name = 1;
+  bool enabled = 2;
+  string owner = 3;
+  map<string, int32> resources = 4;
+  string config = 5;
+  double priority = 6;
+  map<string, MprsJobConfigFilters> filters = 7;
+  string error = 8;
+  repeated int32 backoff_of_values = 9;
+  bool backoff_of_repeat = 10;
+  int64 create_time = 11;
+  int64 modify_time = 12;
+  string level_for_tasks = 13;
+  string level_for_host_placement = 14;
+  repeated string depends_on = 15;
+  string host_placement = 16;
+  double kill_orphan_tasks_after_second = 17;
+  int64 version_id = 18;
+}
+
+message MprsCountWithSamples {
+  int32 count = 1;
+  repeated string samples = 2;
+}
+
+message MprsJobHistogram {
+  message HistogramValue {
+    map<int32, MprsCountWithSamples> value = 1;
+  }
+  string job = 1;
+  //map<string, map<MprsTaskStatusBits, MprsCountWithSamples>> statuses = 2;
+  map<string, HistogramValue> statuses = 2;
+}

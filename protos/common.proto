@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+package mprs;
+
+message BackoffDuration {
+  bool no_more_backoffs = 1;
+  int32 seconds = 2;
+}
+
+message LogLine {
+  string job_id = 1;
+  string node_id = 2;
+  int32 time = 3;
+  string line = 4;
+  int64 line_id = 5;
+}
+
+message LogLines {
+  repeated LogLine lines = 1;
+  int64 next_line_id = 2;
+}
+
+message Resource {
+  string name = 1;
+  int32 amount = 2;
+}
+
+message NodeResources {
+  string node = 1;
+  repeated Resource resources = 2;
+}
+
+message MprsInstanceID {
+  int64 start_time = 1;
+  int64 rand = 2;
+}
+
+message RunningTask {
+  string job = 1;
+  string node = 2;
+  repeated NodeResources node_resources = 3;
+  string worker_shard = 4;
+  MprsInstanceID invocation_id = 5;
+  BackoffDuration next_backoff_duration = 6;
+}
+
+message MachinePortLock {
+  string hostname = 1;
+  int32 port = 2;
+}
+
+message ServiceAddress {
+  string ip_or_host = 1;
+  int32 port = 2;
+}
+
+message MprsWorker {
+  string shard = 1;
+  MachinePortLock machine_lock = 2;
+  ServiceAddress addr = 3;
+  MprsInstanceID id = 4;
+  int32 heartbeat_period_second = 5;
+}
+
+message SchedulerHeartbeatResponse {
+  MprsInstanceID id = 1;
+  int32 max_health_check_gap = 2;
+  int32 heartbeat_grace_period = 3;
+  int32 lose_unhealthy_worker_after = 4;
+  int32 worker_check_interval = 5;
+  int32 worker_state = 6;
+}
+
+enum KillMethod {
+  UnusedKillMethod = 0;
+  SOFT = 1;
+  HEAD = 2;
+}
+
+enum KilledTaskStatusFilter {
+  UnusedKilledTaskStatusFilter = 0;
+  NONE = 1;
+  FORCE_DONE_OR_FAILED = 2;
+  FORCE_DONE_OR_INCOMPLETE_BACKOFF = 3;
+  FORCE_DONE_OR_INCOMPLETE = 4;
+}
+
+enum MprsTaskStatusBits {
+  UnusedMprsTaskStatusBits = 0;
+  UNSTARTED = 1;
+  
+  RUNNING = 2;
+  DONE = 4;
+  INCOMPLETE = 8;
+  FAILED = 16;
+  ERROR = 32;
+
+  USES_BACKOFF = 64;
+  DOES_NOT_ADVANCE_BACKOFF = 512;
+
+  OVERWRITEABLE = 1024;
+
+  CURRENT_STATUS_MASK = 1663;
+
+  AVOIDED = 128;
+  DISABLED = 256;
+
+  CAN_RUN_MASK = 384;
+}
